@@ -24,7 +24,7 @@ const zoomIn = document.getElementById("zoomIn");
 const zoomOut = document.getElementById("zoomOut");
 const zoomReset = document.getElementById("zoomReset");
 
-const MIN_SCALE = 1;
+const MIN_SCALE = 0.1;
 const MAX_SCALE = 8;
 const ZOOM_STEP = 0.22;
 
@@ -37,6 +37,17 @@ let dragStartY = 0;
 let baseOffsetX = 0;
 let baseOffsetY = 0;
 
+function getHighResGoogleImageUrl(url) {
+  const isGoogleDriveImage = /https:\/\/lh3\.googleusercontent\.com\/d\//.test(url);
+  const hasExplicitSize = /=s\d+/.test(url);
+
+  if (!isGoogleDriveImage || hasExplicitSize) {
+    return url;
+  }
+
+  return `${url}=s0`;
+}
+
 function applyTransform() {
   lightboxImage.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
   zoomReset.textContent = `${Math.round(scale * 100)}%`;
@@ -45,14 +56,26 @@ function applyTransform() {
 function clampOffsets() {
   const viewportWidth = lightboxViewport.clientWidth;
   const viewportHeight = lightboxViewport.clientHeight;
-  const imageWidth = lightboxImage.clientWidth * scale;
-  const imageHeight = lightboxImage.clientHeight * scale;
+  const imageWidth = lightboxImage.naturalWidth * scale;
+  const imageHeight = lightboxImage.naturalHeight * scale;
 
-  const minX = Math.min(0, viewportWidth - imageWidth);
-  const minY = Math.min(0, viewportHeight - imageHeight);
+  if (!imageWidth || !imageHeight) {
+    return;
+  }
 
-  offsetX = Math.min(0, Math.max(minX, offsetX));
-  offsetY = Math.min(0, Math.max(minY, offsetY));
+  if (imageWidth <= viewportWidth) {
+    offsetX = (viewportWidth - imageWidth) / 2;
+  } else {
+    const minX = viewportWidth - imageWidth;
+    offsetX = Math.min(0, Math.max(minX, offsetX));
+  }
+
+  if (imageHeight <= viewportHeight) {
+    offsetY = (viewportHeight - imageHeight) / 2;
+  } else {
+    const minY = viewportHeight - imageHeight;
+    offsetY = Math.min(0, Math.max(minY, offsetY));
+  }
 }
 
 function setScale(nextScale, anchorX, anchorY) {
@@ -76,11 +99,25 @@ function setScale(nextScale, anchorX, anchorY) {
   applyTransform();
 }
 
-function resetZoom() {
-  scale = 1;
+function fitImageToViewport() {
+  const viewportWidth = lightboxViewport.clientWidth;
+  const viewportHeight = lightboxViewport.clientHeight;
+  const naturalWidth = lightboxImage.naturalWidth;
+  const naturalHeight = lightboxImage.naturalHeight;
+
+  if (!naturalWidth || !naturalHeight) {
+    return;
+  }
+
+  scale = Math.min(viewportWidth / naturalWidth, viewportHeight / naturalHeight, 1);
   offsetX = 0;
   offsetY = 0;
+  clampOffsets();
   applyTransform();
+}
+
+function setFullResolutionZoom() {
+  setScale(1);
 }
 
 function renderGallery() {
@@ -100,11 +137,10 @@ function renderGallery() {
     type.textContent = map.mode;
 
     button.addEventListener("click", () => {
-      lightboxImage.src = map.imageUrl;
+      lightboxImage.src = getHighResGoogleImageUrl(map.imageUrl);
       lightboxImage.alt = `${map.name} full-resolution map`;
       lightboxTitle.textContent = `${map.name} • ${map.mode}`;
       lightbox.showModal();
-      resetZoom();
     });
 
     fragment.append(clone);
@@ -126,11 +162,11 @@ zoomOut.addEventListener("click", () => {
 });
 
 zoomReset.addEventListener("click", () => {
-  resetZoom();
+  setFullResolutionZoom();
 });
 
 lightboxImage.addEventListener("load", () => {
-  resetZoom();
+  fitImageToViewport();
 });
 
 lightboxViewport.addEventListener(
