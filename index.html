@@ -33,8 +33,17 @@
     </main>
 
     <dialog id="lightbox" class="lightbox" aria-label="Expanded map image viewer">
-      <button id="closeLightbox" class="close-btn" aria-label="Close image viewer">Close</button>
-      <img id="lightboxImage" alt="" />
+      <div class="lightbox-actions">
+        <div class="zoom-controls" role="group" aria-label="Image zoom controls">
+          <button id="zoomOut" class="zoom-btn" type="button" aria-label="Zoom out">-</button>
+          <button id="zoomReset" class="zoom-btn" type="button" aria-label="Reset zoom">100%</button>
+          <button id="zoomIn" class="zoom-btn" type="button" aria-label="Zoom in">+</button>
+        </div>
+        <button id="closeLightbox" class="close-btn" aria-label="Close image viewer">Close</button>
+      </div>
+      <div id="lightboxViewport" class="lightbox-viewport">
+        <img id="lightboxImage" alt="" />
+      </div>
       <p id="lightboxTitle"></p>
     </dialog>
 
