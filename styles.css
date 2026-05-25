@@ -203,6 +203,7 @@ h1 {
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(0, 0, 0, 0.25);
   cursor: grab;
+  touch-action: none;
 }
 
 .lightbox-viewport.is-dragging {
@@ -210,9 +211,11 @@ h1 {
 }
 
 .lightbox img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: none;
+  max-height: none;
   transform-origin: 0 0;
   will-change: transform;
   user-select: none;
