@@ -3,6 +3,11 @@ const maps = [
     name: "Dorado",
     mode: "Escort",
     imageUrl: "https://lh3.googleusercontent.com/d/1MIRAhJArAPm7dbl70H7ExN8owlHrwzv7"
+  },
+  {
+    name: "Midtown",
+    mode: "Hybrid",
+    imageUrl: "https://lh3.googleusercontent.com/d/1pZLwSWEeIcUOERku4uXC9M-bjIN7NStN"
   }
   // Add more map objects here as your collection grows.
   // Example:
